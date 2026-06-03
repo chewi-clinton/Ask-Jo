@@ -24,12 +24,34 @@
       </div>
       <div class="nav-links">
         <a href="index.html">Home</a>
-        <a href="chat.html" class="active">Conversations</a>
+        <a href="chat.html?new=1" class="active">Conversations</a>
       </div>
       <div class="nav-actions" id="header-user-actions"></div>
+      <button
+        class="nav-hamburger"
+        onclick="toggleMobileNav()"
+        aria-label="Menu"
+      >
+        <span></span><span></span><span></span>
+      </button>
     </nav>
 
+    <!-- Mobile nav drawer -->
+    <div class="nav-mobile-drawer" id="mobile-nav-drawer">
+      <a href="index.html">Home</a>
+      <a href="chat.html?new=1">Conversations</a>
+      <a href="auth.html?mode=login">Login</a>
+      <a href="auth.html?mode=register">Create Account</a>
+    </div>
+
     <div class="workspace-viewport">
+      <!-- Overlay for sidebar on mobile -->
+      <div
+        class="sidebar-overlay"
+        id="sidebar-overlay"
+        onclick="closeSidebar()"
+      ></div>
+
       <aside class="chat-sidebar" id="sidebar-panel">
         <button
           type="button"
@@ -44,7 +66,6 @@
 
       <main class="chat-main-window">
         <div class="chat-messages-container" id="chat-output-feed"></div>
-
         <div class="chat-input-sticky-dock">
           <form
             id="chat-submittal-form"
@@ -80,8 +101,38 @@
       </main>
     </div>
 
+    <!-- Floating sidebar toggle button (mobile only) -->
+    <button
+      class="sidebar-toggle-btn"
+      id="sidebar-toggle-btn"
+      onclick="toggleSidebar()"
+      aria-label="Toggle conversations"
+    >
+      ☰
+    </button>
+
     <script src="js/storage.js"></script>
     <script src="js/api.js"></script>
     <script src="js/chat.js"></script>
+    <script>
+      function toggleMobileNav() {
+        const drawer = document.getElementById("mobile-nav-drawer");
+        drawer.classList.toggle("open");
+      }
+
+      function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar-panel");
+        const overlay = document.getElementById("sidebar-overlay");
+        sidebar.classList.toggle("open");
+        overlay.classList.toggle("active");
+      }
+
+      function closeSidebar() {
+        const sidebar = document.getElementById("sidebar-panel");
+        const overlay = document.getElementById("sidebar-overlay");
+        sidebar.classList.remove("open");
+        overlay.classList.remove("active");
+      }
+    </script>
   </body>
 </html>

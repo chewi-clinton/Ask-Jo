@@ -17,13 +17,28 @@
       <div class="nav-logo">Ask Jo</div>
       <div class="nav-links">
         <a href="index.html" class="active">Home</a>
-        <a href="chat.html">Conversations</a>
+        <a href="chat.html?new=1">Conversations</a>
       </div>
       <div class="nav-actions">
         <a href="auth.html?mode=login" class="btn-text">Login</a>
-        <a href="chat.html" class="btn-primary">Get Started</a>
+        <a href="chat.html?new=1" class="btn-primary">Get Started</a>
       </div>
+      <button
+        class="nav-hamburger"
+        onclick="toggleMobileNav()"
+        aria-label="Menu"
+      >
+        <span></span><span></span><span></span>
+      </button>
     </nav>
+
+    <!-- Mobile nav drawer -->
+    <div class="nav-mobile-drawer" id="mobile-nav-drawer">
+      <a href="index.html">Home</a>
+      <a href="chat.html?new=1">Conversations</a>
+      <a href="auth.html?mode=login">Login</a>
+      <a href="chat.html?new=1">Get Started</a>
+    </div>
 
     <main class="landing-hero">
       <div class="hero-content">
@@ -34,7 +49,7 @@
           Cameroonians.
         </p>
         <div class="hero-cta-group">
-          <a href="chat.html" class="btn-primary text-center"
+          <a href="chat.html?new=1" class="btn-primary text-center"
             >Start a Conversation</a
           >
           <a href="#features" class="btn-secondary text-center">Learn More</a>
@@ -68,7 +83,6 @@
           specific community requirements.
         </p>
       </div>
-
       <div class="feature-card">
         <div class="icon-wrapper">
           <svg
@@ -90,7 +104,6 @@
           training centers seamlessly.
         </p>
       </div>
-
       <div class="feature-card">
         <div class="icon-wrapper">
           <svg
@@ -123,5 +136,11 @@
         &copy; 2026 Ask Jo. Built by Clinton. All rights reserved.
       </div>
     </footer>
+
+    <script>
+      function toggleMobileNav() {
+        document.getElementById("mobile-nav-drawer").classList.toggle("open");
+      }
+    </script>
   </body>
 </html>

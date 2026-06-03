@@ -29,14 +29,28 @@ function executeLogoutSequence() {
 
 async function renderSidebarContext() {
   const track = document.getElementById("conversations-list");
+
+  // Always show the new chat button for both guests and authenticated users
+  document.getElementById("new-chat-btn").style.display = "";
+
   if (!StorageManager.isAuthenticated()) {
-    track.innerHTML = `
-            <div class="sidebar-promo-box">
-                <strong>Guest Session</strong><br>
-                Chats are temporary. <a href="auth.html?mode=register" style="text-decoration:underline; font-weight:600;">Sign up</a> to secure your records permanently.
-            </div>
-        `;
-    document.getElementById("new-chat-btn").style.display = "none";
+    // Guest: show local history from localStorage
+    const locals = StorageManager.getGuestHistory() || [];
+    if (locals.length === 0) {
+      track.innerHTML = `
+              <div class="sidebar-promo-box">
+                  <strong>Guest Session</strong><br>
+                  Chats are temporary. <a href="auth.html?mode=register" style="text-decoration:underline; font-weight:600;">Sign up</a> to secure your records permanently.
+              </div>
+          `;
+    } else {
+      track.innerHTML = `
+              <div class="conversation-row-item active">Current Session</div>
+              <div class="sidebar-promo-box" style="margin-top:8px;">
+                  <a href="auth.html?mode=register" style="text-decoration:underline; font-weight:600;">Sign up</a> to save your history permanently.
+              </div>
+          `;
+    }
     return;
   }
 
@@ -64,9 +78,15 @@ function initializeConversationScreen() {
   const feed = document.getElementById("chat-output-feed");
   feed.innerHTML = "";
 
+  // Check if coming from a "new conversation" intent (from homepage or new chat btn)
+  const params = new URLSearchParams(window.location.search);
+  const startNew = params.get("new") === "1";
+
   if (!StorageManager.isAuthenticated()) {
     const locals = StorageManager.getGuestHistory() || [];
-    if (locals.length === 0) {
+    if (locals.length === 0 || startNew) {
+      // Clear guest history if starting fresh
+      if (startNew) StorageManager.clearGuestHistory();
       appendMessageBubble(
         "assistant",
         "Hello! I am Jo, your guidance companion. How can I assist you today?",
@@ -74,10 +94,34 @@ function initializeConversationScreen() {
     } else {
       locals.forEach((msg) => appendMessageBubble(msg.role, msg.content));
     }
-  } else if (!currentActiveConversationId) {
+  } else {
+    if (startNew) {
+      // Auto-create a new conversation for authenticated users
+      autoCreateNewConversation();
+    } else {
+      appendMessageBubble(
+        "assistant",
+        "Welcome to your workspace. Select a conversation or start a new one above.",
+      );
+    }
+  }
+}
+
+async function autoCreateNewConversation() {
+  try {
+    const res = await API.createConversation("New Conversation");
+    currentActiveConversationId = res.id;
+    // Update URL without reload
+    window.history.replaceState({}, "", "chat.html");
+    await renderSidebarContext();
     appendMessageBubble(
       "assistant",
-      "Welcome to your workspace. Select a conversation timeline or create a new session above.",
+      "Hello! I am Jo, your guidance companion. How can I assist you today?",
+    );
+  } catch (e) {
+    appendMessageBubble(
+      "assistant",
+      "Hello! I am Jo, your guidance companion. How can I assist you today?",
     );
   }
 }
@@ -109,12 +153,31 @@ async function switchActiveConversation(id) {
 }
 
 async function createNewChatSession() {
+  if (!StorageManager.isAuthenticated()) {
+    // Guest: just clear the feed and start fresh
+    StorageManager.clearGuestHistory();
+    currentActiveConversationId = null;
+    const feed = document.getElementById("chat-output-feed");
+    feed.innerHTML = "";
+    await renderSidebarContext();
+    appendMessageBubble(
+      "assistant",
+      "Hello! I am Jo, your guidance companion. How can I assist you today?",
+    );
+    return;
+  }
+
   try {
     const title = prompt("Enter topic heading:") || "New Conversation";
     const res = await API.createConversation(title);
     currentActiveConversationId = res.id;
     await renderSidebarContext();
-    switchActiveConversation(res.id);
+    const feed = document.getElementById("chat-output-feed");
+    feed.innerHTML = "";
+    appendMessageBubble(
+      "assistant",
+      "New session started. How can I assist you today?",
+    );
   } catch (e) {
     alert("Failed to initialize tracking container.");
   }
