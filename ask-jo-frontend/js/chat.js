@@ -1,6 +1,19 @@
 let currentActiveConversationId = null;
 
 window.addEventListener("DOMContentLoaded", async () => {
+  if (!StorageManager.isAuthenticated()) {
+    try {
+      const guestSession = await API.registerGuest();
+      StorageManager.saveSession(
+        guestSession.access,
+        guestSession.refresh,
+        guestSession.user,
+      );
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   evaluateHeaderAuthState();
   await renderSidebarContext();
   initializeConversationScreen();
@@ -8,10 +21,15 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 function evaluateHeaderAuthState() {
   const container = document.getElementById("header-user-actions");
-  if (StorageManager.isAuthenticated()) {
-    const user = StorageManager.getUser();
+  const user = StorageManager.getUser();
+  const isTrueUser =
+    StorageManager.isAuthenticated() &&
+    user &&
+    !user.username.startsWith("guest_");
+
+  if (isTrueUser) {
     container.innerHTML = `
-            <span class="btn-text" style="padding-right:10px;">Hi, ${user?.username || "User"}</span>
+            <span class="btn-text" style="padding-right:10px;">Hi, ${user.username}</span>
             <button class="btn-secondary" onclick="executeLogoutSequence()">Logout</button>
         `;
   } else {
@@ -29,11 +47,16 @@ function executeLogoutSequence() {
 
 async function renderSidebarContext() {
   const track = document.getElementById("conversations-list");
-  if (!StorageManager.isAuthenticated()) {
+  const user = StorageManager.getUser();
+  const isGuest =
+    !StorageManager.isAuthenticated() ||
+    (user && user.username.startsWith("guest_"));
+
+  if (isGuest) {
     track.innerHTML = `
             <div class="sidebar-promo-box">
                 <strong>Guest Session</strong><br>
-                Chats are stored in local storage. <a href="auth.html?mode=register" style="text-decoration:underline; font-weight:600;">Sign up</a> to secure your records.
+                Chats are temporary. <a href="auth.html?mode=register" style="text-decoration:underline; font-weight:600;">Sign up</a> to secure your records permanently.
             </div>
         `;
     document.getElementById("new-chat-btn").style.display = "none";
@@ -64,20 +87,10 @@ function initializeConversationScreen() {
   const feed = document.getElementById("chat-output-feed");
   feed.innerHTML = "";
 
-  if (!StorageManager.isAuthenticated()) {
-    const locals = StorageManager.getGuestHistory();
-    if (locals.length === 0) {
-      appendMessageBubble(
-        "assistant",
-        "Hello! I am Jo, your guidance companion. How can I assist you with career paths, administration, or counseling today?",
-      );
-    } else {
-      locals.forEach((msg) => appendMessageBubble(msg.role, msg.content));
-    }
-  } else if (!currentActiveConversationId) {
+  if (!currentActiveConversationId) {
     appendMessageBubble(
       "assistant",
-      "Welcome to your workspace. Select a conversation timeline or create a new session above.",
+      "Hello! I am Jo, your guidance companion. How can I assist you with career paths, administration, or counseling today?",
     );
   }
 }
@@ -90,15 +103,16 @@ async function switchActiveConversation(id) {
     '<div class="typing-skeleton"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
 
   try {
-    const log = await API.getMessages(id);
+    const conversation = await API.getConversationDetails(id);
     feed.innerHTML = "";
-    if (log.length === 0) {
+
+    if (!conversation.messages || conversation.messages.length === 0) {
       appendMessageBubble(
         "assistant",
         "This context channel is active. Drop your prompt below.",
       );
     } else {
-      log.forEach((msg) =>
+      conversation.messages.forEach((msg) =>
         appendMessageBubble(msg.role, msg.content, msg.is_crisis_flagged),
       );
     }
@@ -146,30 +160,23 @@ async function transmitUserPrompt(event) {
   feed.scrollTop = feed.scrollHeight;
 
   try {
-    let replyText = "";
-    let crisisFlagged = false;
-
-    if (StorageManager.isAuthenticated()) {
-      if (!currentActiveConversationId) {
-        const auto = await API.createConversation(
-          text.substring(0, 25) + "...",
-        );
-        currentActiveConversationId = auto.id;
-        await renderSidebarContext();
-      }
-      const data = await API.sendMessage(currentActiveConversationId, text);
-      replyText = data.reply;
-      crisisFlagged = data.crisis_flagged;
-    } else {
-      StorageManager.saveGuestMessage("user", text);
-      const data = await API.sendGuestMessage(text);
-      replyText = data.reply;
-      crisisFlagged = data.crisis_flagged;
-      StorageManager.saveGuestMessage("assistant", replyText);
+    if (!currentActiveConversationId) {
+      const auto = await API.createConversation(text.substring(0, 25) + "...");
+      currentActiveConversationId = auto.id;
+      await renderSidebarContext();
     }
 
+    const data = await API.sendMessage(currentActiveConversationId, text);
+
     loader.remove();
-    appendMessageBubble("assistant", replyText, crisisFlagged);
+
+    if (data.assistant_message && data.assistant_message.content) {
+      appendMessageBubble(
+        "assistant",
+        data.assistant_message.content,
+        data.crisis_flagged,
+      );
+    }
   } catch (err) {
     loader.remove();
     appendMessageBubble(
