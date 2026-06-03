@@ -57,25 +57,20 @@ async function handleAuthSubmit(event) {
       if (password !== confirmPassword)
         throw new Error("Passwords do not match.");
 
-      // FIX: was (username, email, ...) — now correctly (email, username, ...)
       await API.register(email, username, password, confirmPassword);
       switchAuthMode("login");
       errorBanner.style.backgroundColor = "#EBF5FF";
       errorBanner.style.color = "#1E429F";
       errorBanner.textContent =
-        "Account verified! Enter your credentials to log in.";
+        "Account created! Enter your credentials to log in.";
       errorBanner.classList.remove("hidden");
     } else {
       const data = await API.login(email, password);
-
-      // FIX: Django returns { tokens: { access, refresh }, user: {...} }
-      // was data.access / data.refresh — both were undefined, so token was never stored
       StorageManager.setTokens(data.tokens.access, data.tokens.refresh);
       if (data.user) StorageManager.setUser(data.user);
 
       const locals = StorageManager.getGuestHistory();
       if (locals.length > 0) {
-        // FIX: was API.migrateHistory — method doesn't exist, correct name is migrateGuestHistory
         await API.migrateGuestHistory(locals).catch((e) => console.error(e));
         StorageManager.clearGuestHistory();
       }

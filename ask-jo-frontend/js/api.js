@@ -73,7 +73,7 @@ const API = {
       body: JSON.stringify({ content, location }),
     }),
 
-  // FIX: was migrateHistory (didn't exist), correct name used in auth.js call
+  // FX: was migrateHistory (didn't exist), correct name used in auth.js call
   migrateGuestHistory: (guestHistory) =>
     request("/conversations/migrate/", {
       method: "POST",
