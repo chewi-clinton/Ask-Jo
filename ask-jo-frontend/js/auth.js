@@ -57,7 +57,8 @@ async function handleAuthSubmit(event) {
       if (password !== confirmPassword)
         throw new Error("Passwords do not match.");
 
-      await API.register(username, email, password, confirmPassword, "en");
+      // FIX: was (username, email, ...) — now correctly (email, username, ...)
+      await API.register(email, username, password, confirmPassword);
       switchAuthMode("login");
       errorBanner.style.backgroundColor = "#EBF5FF";
       errorBanner.style.color = "#1E429F";
@@ -66,12 +67,16 @@ async function handleAuthSubmit(event) {
       errorBanner.classList.remove("hidden");
     } else {
       const data = await API.login(email, password);
-      StorageManager.setTokens(data.access, data.refresh);
+
+      // FIX: Django returns { tokens: { access, refresh }, user: {...} }
+      // was data.access / data.refresh — both were undefined, so token was never stored
+      StorageManager.setTokens(data.tokens.access, data.tokens.refresh);
       if (data.user) StorageManager.setUser(data.user);
 
       const locals = StorageManager.getGuestHistory();
       if (locals.length > 0) {
-        await API.migrateHistory(locals).catch((e) => console.error(e));
+        // FIX: was API.migrateHistory — method doesn't exist, correct name is migrateGuestHistory
+        await API.migrateGuestHistory(locals).catch((e) => console.error(e));
         StorageManager.clearGuestHistory();
       }
       window.location.replace("chat.html");

@@ -37,6 +37,7 @@ const API = {
       body: JSON.stringify({ email, password }),
     }),
 
+  // FIX: argument order is (email, username, ...) — matches what auth.js passes
   register: (email, username, password, confirmPassword) =>
     request("/auth/register/", {
       method: "POST",
@@ -72,6 +73,7 @@ const API = {
       body: JSON.stringify({ content, location }),
     }),
 
+  // FIX: was migrateHistory (didn't exist), correct name used in auth.js call
   migrateGuestHistory: (guestHistory) =>
     request("/conversations/migrate/", {
       method: "POST",
