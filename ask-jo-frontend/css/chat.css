@@ -1,3 +1,7 @@
+/* ==========================================================================
+   Ask Jo - Chat Workspace Presentation Modifications
+   ========================================================================== */
+
 .chat-workspace-body {
   height: 100vh;
   display: flex;
@@ -13,6 +17,7 @@
   height: calc(100vh - 73px);
 }
 
+/* Sidebar Context Panels */
 .chat-sidebar {
   width: 280px;
   background-color: var(--white);
@@ -42,6 +47,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
   border: 1px solid transparent;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .conversation-row-item:hover,
@@ -60,6 +68,7 @@
   border: 1px dashed var(--primary);
 }
 
+/* Core Interface Log Container */
 .chat-main-window {
   flex: 1;
   display: flex;
@@ -77,12 +86,14 @@
   gap: 20px;
 }
 
+/* Chat Bubbles Core Infrastructure */
 .message-bubble {
   max-width: 75%;
   padding: 14px 18px;
   border-radius: 12px;
   font-size: 0.95rem;
   line-height: 1.5;
+  word-break: break-word;
 }
 
 .message-bubble.user {
@@ -100,11 +111,13 @@
   border: 1px solid rgba(26, 46, 53, 0.06);
 }
 
+/* Crisis Flag Layout Variant Overrides */
 .message-bubble.crisis-intervention {
   border: 2px solid #f8b4b4;
   background-color: #fff5f5;
 }
 
+/* Bottom Interface Docks */
 .chat-input-sticky-dock {
   padding: 20px 40px 30px 40px;
   background-color: var(--neutral);
@@ -137,6 +150,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.chat-send-btn:hover {
+  background-color: #122117;
 }
 
 .chat-disclaimer {
@@ -146,6 +164,7 @@
   margin-top: 8px;
 }
 
+/* Streaming/Loading State Animations */
 .typing-skeleton {
   display: flex;
   gap: 5px;
