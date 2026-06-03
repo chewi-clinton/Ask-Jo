@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ask Jo - Portal Entry</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/auth.css" />
+  </head>
+  <body>
+    <div class="auth-container">
+      <div class="auth-left-panel">
+        <div class="auth-visual-overlay"></div>
+      </div>
+      <div class="auth-right-panel">
+        <div class="auth-header">
+          <h2>Ask Jo</h2>
+          <div class="auth-tabs">
+            <button
+              class="auth-tab active"
+              id="tab-login"
+              onclick="switchAuthMode('login')"
+            >
+              Login
+            </button>
+            <button
+              class="auth-tab"
+              id="tab-register"
+              onclick="switchAuthMode('register')"
+            >
+              Register
+            </button>
+          </div>
+        </div>
+
+        <div class="auth-form-container">
+          <h1 id="auth-title">Welcome back</h1>
+          <p id="auth-subtitle" class="subtitle">
+            Enter your details to access your mentorship dashboard.
+          </p>
+
+          <div id="auth-error-msg" class="error-banner hidden"></div>
+
+          <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+            <div class="form-group hidden" id="group-username">
+              <label for="auth-username">Username</label>
+              <input
+                type="text"
+                id="auth-username"
+                placeholder="yourusername"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="auth-email">Email</label>
+              <input
+                type="email"
+                id="auth-email"
+                placeholder="name@example.com"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <div class="label-wrapper">
+                <label for="auth-password">Password</label>
+                <a href="#" class="forgot-link" id="link-forgot-pass"
+                  >Forgot Password?</a
+                >
+              </div>
+              <input
+                type="password"
+                id="auth-password"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            <div class="form-group hidden" id="group-confirm-password">
+              <label for="auth-confirm-password">Confirm Password</label>
+              <input
+                type="password"
+                id="auth-confirm-password"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="btn-primary full-width"
+              id="auth-submit-btn"
+            >
+              Log in to Ask Jo
+            </button>
+          </form>
+
+          <div class="auth-divider">
+            <span>OR</span>
+          </div>
+
+          <button
+            class="btn-outline full-width"
+            onclick="window.location.href = 'chat.html'"
+          >
+            Continue as Guest
+          </button>
+        </div>
+
+        <div class="auth-footer">
+          <span>© 2026 Ask Jo.</span>
+          <div class="auth-footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Help Center</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const params = new URLSearchParams(window.location.search);
+        const initialMode = params.get("mode") || "login";
+        switchAuthMode(initialMode);
+      });
+    </script>
+  </body>
+</html>

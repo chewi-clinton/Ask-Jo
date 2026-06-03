@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ask Jo - Professional Guidance & Counseling</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/main.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-logo">Ask Jo</div>
+      <div class="nav-links">
+        <a href="#mentorship">Mentorship</a>
+        <a href="#resources">Resources</a>
+        <a href="#about">About</a>
+      </div>
+      <div class="nav-actions">
+        <a
+          href="auth.html?mode=login"
+          class="btn-text"
+          style="text-decoration: none; padding-right: 15px"
+          >Login</a
+        >
+        <a
+          href="auth.html?mode=register"
+          class="btn-primary"
+          style="text-decoration: none"
+          >Get Started</a
+        >
+      </div>
+    </nav>
+
+    <main class="landing-hero">
+      <div class="hero-content">
+        <h1>Professional guidance for your next chapter.</h1>
+        <p>
+          Access expert counseling, career mentorship, and local government
+          resources in a secure, private environment designed for young adults.
+        </p>
+        <div class="hero-actions">
+          <a
+            href="auth.html?mode=login"
+            class="btn-primary"
+            style="text-decoration: none"
+            >Start a Conversation</a
+          >
+          <button class="btn-outline">Learn More</button>
+        </div>
+      </div>
+      <div class="hero-image-container">
+        <div class="hero-placeholder-img"></div>
+      </div>
+    </main>
+
+    <section class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i data-lucide="user-check"></i>
+        </div>
+        <h3>Professional Mentorship</h3>
+        <p>
+          Connect with experienced mentors who understand the unique challenges
+          of early adulthood.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i data-lucide="landmark"></i>
+        </div>
+        <h3>Government Resources</h3>
+        <p>
+          Navigate local services and support programs with ease through
+          curated, verified links.
+        </p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon-wrapper">
+          <i data-lucide="shield-check"></i>
+        </div>
+        <h3>Secure Counseling</h3>
+        <p>
+          A safe, private space to discuss mental wellness without judgment or
+          AI clichés.
+        </p>
+      </div>
+    </section>
+
+    <footer class="landing-footer">
+      <span class="footer-logo">Ask Jo</span>
+      <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Help Center</a>
+        <a href="#">Contact</a>
+      </div>
+      <p class="copyright">
+        © 2026 Ask Jo. All rights reserved. Professional counseling for the
+        modern age.
+      </p>
+    </footer>
+
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="js/storage.js"></script>
+    <script>
+      // Initialize Lucide Icons
+      lucide.createIcons();
+
+      // Auto-forward home visitors if already logged into an active token session
+      if (StorageManager.getAccessToken()) {
+        window.location.href = "chat.html";
+      }
+    </script>
+  </body>
+</html>
