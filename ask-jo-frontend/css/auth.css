@@ -11,7 +11,7 @@ body {
 /* Left panel loading clean graphic element asset background */
 .auth-left-panel {
   flex: 1;
-  background-image: url("../assets/auth-bg.jpg");
+  background-image: url("../assets/auth_bg.png");
   background-size: cover;
   background-position: center;
   position: relative;
