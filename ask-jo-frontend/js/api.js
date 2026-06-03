@@ -20,8 +20,9 @@ class ApiService {
 
     try {
       const response = await fetch(url, config);
-      const data = await response.json();
+      if (response.status === 204) return null;
 
+      const data = await response.json();
       if (!response.ok) {
         throw new Error(
           data.message || data.detail || "API Endpoint Request Failed",
@@ -71,6 +72,25 @@ class ApiService {
     return this.request(`/conversations/${conversationId}/send/`, {
       method: "POST",
       body: JSON.stringify({ content, location }),
+    });
+  }
+
+  getMessages(conversationId) {
+    return this.request(`/conversations/${conversationId}/messages/`);
+  }
+
+  sendGuestMessage(content, location = "Yaoundé") {
+    return this.request("/conversations/guest-chat/", {
+      method: "POST",
+      skipAuth: true,
+      body: JSON.stringify({ content, location }),
+    });
+  }
+
+  migrateHistory(history) {
+    return this.request("/conversations/migrate/", {
+      method: "POST",
+      body: JSON.stringify({ history }),
     });
   }
 }

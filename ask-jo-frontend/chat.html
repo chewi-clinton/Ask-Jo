@@ -3,163 +3,85 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ask Jo - Workspace Sessions</title>
+    <title>Ask Jo - Chat Workspace</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/chat.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/main.css" />
-    <link rel="stylesheet" href="css/chat.css" />
-    <link rel="stylesheet" href="css/animations.css" />
-
-    <!-- AUTHENTICATION GUARD -->
-    <script src="js/storage.js"></script>
-    <script>
-      if (!StorageManager.getAccessToken()) {
-        window.location.replace("auth.html?mode=login");
-      }
-    </script>
   </head>
-  <body>
-    <div class="chat-layout">
-      <aside class="chat-sidebar" id="sidebar">
-        <div class="sidebar-header">
-          <h2>Ask Jo</h2>
-          <p>Professional Counseling</p>
-        </div>
+  <body class="chat-workspace-body">
+    <nav class="navbar">
+      <div
+        class="nav-logo"
+        style="cursor: pointer"
+        onclick="window.location.href = 'index.html'"
+      >
+        Ask Jo
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="chat.html" class="active">Conversations</a>
+      </div>
+      <div class="nav-actions" id="header-user-actions"></div>
+    </nav>
 
-        <button class="btn-sidebar-action" id="btn-new-chat">
-          <i data-lucide="plus" class="sidebar-icon"></i> New Conversation
+    <div class="workspace-viewport">
+      <aside class="chat-sidebar" id="sidebar-panel">
+        <button
+          type="button"
+          class="btn-primary full-width"
+          id="new-chat-btn"
+          onclick="createNewChatSession()"
+        >
+          + New Conversation
         </button>
-
-        <nav class="sidebar-menu">
-          <a href="#" class="menu-item"
-            ><i data-lucide="message-square" class="sidebar-icon"></i> New
-            Conversation</a
-          >
-          <a href="#" class="menu-item"
-            ><i data-lucide="clipboard-list" class="sidebar-icon"></i> Mental
-            Wellness Plan</a
-          >
-          <a href="#" class="menu-item"
-            ><i data-lucide="book-open" class="sidebar-icon"></i> Resource
-            Library</a
-          >
-          <a href="#" class="menu-item"
-            ><img src="" class="sidebar-icon" alt="" /><i
-              data-lucide="graduation-cap"
-              class="sidebar-icon"
-            ></i>
-            Mentorship Programs</a
-          >
-          <a href="#" class="menu-item"
-            ><i data-lucide="users" class="sidebar-icon"></i> Peer Support
-            Groups</a
-          >
-          <a href="#" class="menu-item active"
-            ><i data-lucide="hourglass" class="sidebar-icon"></i> Session
-            History</a
-          >
-        </nav>
-
-        <div class="sidebar-recent-section">
-          <label>RECENT</label>
-          <div class="recent-list" id="recent-conversations-list"></div>
-        </div>
-
-        <div class="sidebar-footer">
-          <div class="footer-item" id="btn-lang-toggle">
-            <i data-lucide="globe" class="sidebar-icon"></i> Language: EN/FR
-          </div>
-          <div class="footer-item">
-            <i data-lucide="settings" class="sidebar-icon"></i> Account Settings
-          </div>
-          <div class="footer-item" id="btn-logout" style="cursor: pointer">
-            <i data-lucide="log-out" class="sidebar-icon"></i> Logout
-          </div>
-          <div class="footer-item">
-            <i data-lucide="help-circle" class="sidebar-icon"></i> Help Center
-          </div>
-        </div>
+        <div class="sidebar-list-container" id="conversations-list"></div>
       </aside>
 
-      <section class="chat-main">
-        <header class="chat-header">
-          <button
-            class="mobile-toggle"
-            id="mobile-sidebar-toggle"
-            aria-label="Toggle Navigation"
+      <main class="chat-main-window">
+        <div class="chat-messages-container" id="chat-output-feed"></div>
+
+        <div class="chat-input-sticky-dock">
+          <form
+            id="chat-submittal-form"
+            onsubmit="transmitUserPrompt(event)"
+            class="chat-form-raw"
           >
-            ☰
-          </button>
-          <div class="header-title-wrapper">
-            <span class="app-name">Ask Jo</span>
-            <span class="session-badge" id="current-conversation-title"
-              >Current Session</span
-            >
-          </div>
-          <div class="header-actions">
-            <button class="icon-btn">
-              <i data-lucide="more-vertical"></i>
-            </button>
-          </div>
-        </header>
-
-        <div class="emergency-banner">
-          Emergency: Call 9-8-8 for immediate support.
-        </div>
-
-        <div class="chat-history" id="chat-messages-container"></div>
-
-        <footer class="chat-input-area">
-          <form id="chat-input-form" class="input-form-wrapper">
             <input
               type="text"
-              id="chat-input-field"
-              placeholder="Type your message to Jo..."
+              id="chat-input-box"
+              placeholder="Ask Jo about jobs, youth programs, or counseling..."
               required
               autocomplete="off"
             />
-            <button
-              type="submit"
-              class="send-btn"
-              id="chat-send-btn"
-              aria-label="Send message"
-            >
-              <i data-lucide="send" style="width: 18px; height: 18px"></i>
+            <button type="submit" class="chat-send-btn">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
             </button>
           </form>
-          <p class="disclaimer-text">
-            Jo provides guidance, not professional medical advice.
-          </p>
-        </footer>
-      </section>
+          <div class="chat-disclaimer">
+            Jo is an AI companion providing resource lookups. Verify
+            administrative requirements independently.
+          </div>
+        </div>
+      </main>
     </div>
 
-    <!-- Lucide Icons CDN -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="js/utils.js"></script>
+    <script src="js/storage.js"></script>
     <script src="js/api.js"></script>
     <script src="js/chat.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        // Render vector line layouts
-        lucide.createIcons();
-
-        const sidebar = document.getElementById("sidebar");
-        document.getElementById("mobile-sidebar-toggle").onclick = () => {
-          sidebar.classList.toggle("open");
-        };
-
-        document.getElementById("btn-logout").onclick = () => {
-          StorageManager.clearAuth();
-          window.location.replace("index.html");
-        };
-
-        ChatWorkspace.init();
-      });
-    </script>
   </body>
 </html>

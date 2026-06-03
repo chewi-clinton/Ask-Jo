@@ -3,36 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ask Jo - Professional Guidance & Counseling</title>
+    <title>Ask Jo - Professional Guidance</title>
+    <link rel="stylesheet" href="css/main.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/main.css" />
   </head>
   <body>
     <nav class="navbar">
       <div class="nav-logo">Ask Jo</div>
       <div class="nav-links">
-        <a href="#mentorship">Mentorship</a>
-        <a href="#resources">Resources</a>
-        <a href="#about">About</a>
+        <a href="index.html" class="active">Home</a>
+        <a href="chat.html">Conversations</a>
       </div>
       <div class="nav-actions">
-        <a
-          href="auth.html?mode=login"
-          class="btn-text"
-          style="text-decoration: none; padding-right: 15px"
-          >Login</a
-        >
-        <a
-          href="auth.html?mode=register"
-          class="btn-primary"
-          style="text-decoration: none"
-          >Get Started</a
-        >
+        <a href="auth.html?mode=login" class="btn-text">Login</a>
+        <a href="chat.html" class="btn-primary">Get Started</a>
       </div>
     </nav>
 
@@ -41,16 +30,14 @@
         <h1>Professional guidance for your next chapter.</h1>
         <p>
           Access expert counseling, career mentorship, and local government
-          resources in a secure, private environment designed for young adults.
+          resources in a secure, private environment designed for young
+          Cameroonians.
         </p>
-        <div class="hero-actions">
-          <a
-            href="auth.html?mode=login"
-            class="btn-primary"
-            style="text-decoration: none"
+        <div class="hero-cta-group">
+          <a href="chat.html" class="btn-primary text-center"
             >Start a Conversation</a
           >
-          <button class="btn-outline">Learn More</button>
+          <a href="#features" class="btn-secondary text-center">Learn More</a>
         </div>
       </div>
       <div class="hero-image-container">
@@ -58,64 +45,83 @@
       </div>
     </main>
 
-    <section class="features-grid">
+    <section id="features" class="features-grid">
       <div class="feature-card">
-        <div class="feature-icon-wrapper">
-          <i data-lucide="user-check"></i>
+        <div class="icon-wrapper">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
         </div>
         <h3>Professional Mentorship</h3>
         <p>
-          Connect with experienced mentors who understand the unique challenges
-          of early adulthood.
+          Connect with local resources and guidance networks tailored to your
+          specific community requirements.
         </p>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon-wrapper">
-          <i data-lucide="landmark"></i>
+        <div class="icon-wrapper">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect x="2" y="22" width="20" height="2"></rect>
+            <path d="M4 22V7l8-5 8 5v15"></path>
+            <path d="M12 22V12"></path>
+          </svg>
         </div>
         <h3>Government Resources</h3>
         <p>
-          Navigate local services and support programs with ease through
-          curated, verified links.
+          Navigate administrative programs, youth employment opportunities, and
+          training centers seamlessly.
         </p>
       </div>
+
       <div class="feature-card">
-        <div class="feature-icon-wrapper">
-          <i data-lucide="shield-check"></i>
+        <div class="icon-wrapper">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7s0 6 8 10z"></path>
+          </svg>
         </div>
         <h3>Secure Counseling</h3>
         <p>
-          A safe, private space to discuss mental wellness without judgment or
-          AI clichés.
+          A non-judgmental, fully anonymous playground to seek lifestyle
+          guidance and address critical life situations.
         </p>
       </div>
     </section>
 
     <footer class="landing-footer">
-      <span class="footer-logo">Ask Jo</span>
-      <div class="footer-links">
+      <div class="footer-left">
+        <span class="footer-logo">Ask Jo</span>
         <a href="#">Privacy Policy</a>
         <a href="#">Terms of Service</a>
         <a href="#">Help Center</a>
-        <a href="#">Contact</a>
       </div>
-      <p class="copyright">
-        © 2026 Ask Jo. All rights reserved. Professional counseling for the
-        modern age.
-      </p>
+      <div class="footer-right">
+        &copy; 2026 Ask Jo. Built by Clinton. All rights reserved.
+      </div>
     </footer>
-
-    <!-- Lucide Icons CDN -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="js/storage.js"></script>
-    <script>
-      // Initialize Lucide Icons
-      lucide.createIcons();
-
-      // Auto-forward home visitors if already logged into an active token session
-      if (StorageManager.getAccessToken()) {
-        window.location.href = "chat.html";
-      }
-    </script>
   </body>
 </html>
