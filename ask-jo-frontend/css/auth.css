@@ -1,7 +1,3 @@
-/* ==========================================================================
-   Ask Jo - Authentication Gateway Styles Override
-   ========================================================================== */
-
 .auth-page-body {
   background-color: var(--neutral);
   height: 100vh;
@@ -17,7 +13,7 @@
 .auth-splash-panel {
   flex: 1;
   background-color: var(--primary);
-  background-size: cover;
+  background-image: url("../assets/auth_bg.png");
   background-position: center;
 }
 
