@@ -1,19 +1,6 @@
 let currentActiveConversationId = null;
 
 window.addEventListener("DOMContentLoaded", async () => {
-  if (!StorageManager.isAuthenticated()) {
-    try {
-      const guestSession = await API.registerGuest();
-      StorageManager.saveSession(
-        guestSession.access,
-        guestSession.refresh,
-        guestSession.user,
-      );
-    } catch (err) {
-      console.error(err);
-    }
-  }
-
   evaluateHeaderAuthState();
   await renderSidebarContext();
   initializeConversationScreen();
@@ -21,15 +8,10 @@ window.addEventListener("DOMContentLoaded", async () => {
 
 function evaluateHeaderAuthState() {
   const container = document.getElementById("header-user-actions");
-  const user = StorageManager.getUser();
-  const isTrueUser =
-    StorageManager.isAuthenticated() &&
-    user &&
-    !user.username.startsWith("guest_");
-
-  if (isTrueUser) {
+  if (StorageManager.isAuthenticated()) {
+    const user = StorageManager.getUser();
     container.innerHTML = `
-            <span class="btn-text" style="padding-right:10px;">Hi, ${user.username}</span>
+            <span class="btn-text" style="padding-right:10px;">Hi, ${user?.username || "User"}</span>
             <button class="btn-secondary" onclick="executeLogoutSequence()">Logout</button>
         `;
   } else {
@@ -47,12 +29,7 @@ function executeLogoutSequence() {
 
 async function renderSidebarContext() {
   const track = document.getElementById("conversations-list");
-  const user = StorageManager.getUser();
-  const isGuest =
-    !StorageManager.isAuthenticated() ||
-    (user && user.username.startsWith("guest_"));
-
-  if (isGuest) {
+  if (!StorageManager.isAuthenticated()) {
     track.innerHTML = `
             <div class="sidebar-promo-box">
                 <strong>Guest Session</strong><br>
@@ -87,10 +64,20 @@ function initializeConversationScreen() {
   const feed = document.getElementById("chat-output-feed");
   feed.innerHTML = "";
 
-  if (!currentActiveConversationId) {
+  if (!StorageManager.isAuthenticated()) {
+    const locals = StorageManager.getGuestHistory() || [];
+    if (locals.length === 0) {
+      appendMessageBubble(
+        "assistant",
+        "Hello! I am Jo, your guidance companion. How can I assist you today?",
+      );
+    } else {
+      locals.forEach((msg) => appendMessageBubble(msg.role, msg.content));
+    }
+  } else if (!currentActiveConversationId) {
     appendMessageBubble(
       "assistant",
-      "Hello! I am Jo, your guidance companion. How can I assist you with career paths, administration, or counseling today?",
+      "Welcome to your workspace. Select a conversation timeline or create a new session above.",
     );
   }
 }
@@ -160,23 +147,30 @@ async function transmitUserPrompt(event) {
   feed.scrollTop = feed.scrollHeight;
 
   try {
-    if (!currentActiveConversationId) {
-      const auto = await API.createConversation(text.substring(0, 25) + "...");
-      currentActiveConversationId = auto.id;
-      await renderSidebarContext();
-    }
+    let replyText = "";
+    let crisisFlagged = false;
 
-    const data = await API.sendMessage(currentActiveConversationId, text);
+    if (StorageManager.isAuthenticated()) {
+      if (!currentActiveConversationId) {
+        const auto = await API.createConversation(
+          text.substring(0, 25) + "...",
+        );
+        currentActiveConversationId = auto.id;
+        await renderSidebarContext();
+      }
+      const data = await API.sendMessage(currentActiveConversationId, text);
+      replyText = data.assistant_message?.content || "";
+      crisisFlagged = data.crisis_flagged;
+    } else {
+      StorageManager.saveGuestMessage("user", text);
+      const data = await API.sendGuestMessage(text);
+      replyText = data.assistant_message?.content || data.reply || "";
+      crisisFlagged = data.crisis_flagged;
+      StorageManager.saveGuestMessage("assistant", replyText);
+    }
 
     loader.remove();
-
-    if (data.assistant_message && data.assistant_message.content) {
-      appendMessageBubble(
-        "assistant",
-        data.assistant_message.content,
-        data.crisis_flagged,
-      );
-    }
+    appendMessageBubble("assistant", replyText, crisisFlagged);
   } catch (err) {
     loader.remove();
     appendMessageBubble(

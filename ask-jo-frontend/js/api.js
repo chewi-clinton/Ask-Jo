@@ -49,16 +49,6 @@ const API = {
       }),
     }),
 
-  registerGuest: async () => {
-    const randomId = Math.floor(100000 + Math.random() * 900000);
-    return API.register(
-      `guest_${randomId}@amino-vault.com`,
-      `guest_${randomId}`,
-      "GuestPass1234!",
-      "GuestPass1234!",
-    );
-  },
-
   getConversations: () => request("/conversations/", { method: "GET" }),
 
   createConversation: (title = "New Conversation") =>
@@ -74,5 +64,17 @@ const API = {
     request(`/conversations/${conversationId}/send/`, {
       method: "POST",
       body: JSON.stringify({ content, location }),
+    }),
+
+  sendGuestMessage: (content, location = "Yaoundé") =>
+    request("/conversations/guest-send/", {
+      method: "POST",
+      body: JSON.stringify({ content, location }),
+    }),
+
+  migrateGuestHistory: (guestHistory) =>
+    request("/conversations/migrate_`guest`/", {
+      method: "POST",
+      body: JSON.stringify({ guest_history: guestHistory }),
     }),
 };
