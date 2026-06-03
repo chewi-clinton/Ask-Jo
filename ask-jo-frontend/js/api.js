@@ -1,98 +1,94 @@
-class ApiService {
-  constructor() {
-    this.baseUrl = "https://api.amino-vault.com/api";
+const API_BASE_URL = "https://api.amino-vault.com/api";
+async function request(endpoint, options = {}) {
+  const token = Storage.getAccessToken();
+
+  const headers = {
+    "Content-Type": "application/json",
+
+    ...options.headers,
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
-  async request(endpoint, options = {}) {
-    const url = `${this.baseUrl}${endpoint}`;
-    const token = StorageManager.getAccessToken();
+  const config = {
+    ...options,
 
-    const headers = {
-      "Content-Type": "application/json",
-      ...options.headers,
-    };
+    headers,
+  };
 
-    if (token && !options.skipAuth) {
-      headers["Authorization"] = `Bearer ${token}`;
-    }
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, config); // Safely intercept server errors before trying to parse non-existent JSON
 
-    const config = { ...options, headers };
+  if (!response.ok) {
+    let errorMsg = `Server returned status ${response.status}`;
 
     try {
-      const response = await fetch(url, config);
-      if (response.status === 204) return null;
+      const errorData = await response.json();
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(
-          data.message || data.detail || "API Endpoint Request Failed",
-        );
-      }
-      return data;
-    } catch (error) {
-      console.error(`API Error [${endpoint}]:`, error);
-      throw error;
-    }
+      errorMsg = errorData.message || JSON.stringify(errorData);
+    } catch (e) {}
+
+    throw new Error(errorMsg);
   }
 
-  login(email, password) {
-    return this.request("/auth/login/", {
-      method: "POST",
-      skipAuth: true,
-      body: JSON.stringify({ email, password }),
-    });
-  }
-
-  register(username, email, password, confirmPassword, lang = "en") {
-    return this.request("/auth/register/", {
-      method: "POST",
-      skipAuth: true,
-      body: JSON.stringify({
-        username,
-        email,
-        password,
-        confirm_password: confirmPassword,
-        preferred_language: lang,
-      }),
-    });
-  }
-
-  getConversations() {
-    return this.request("/conversations/");
-  }
-
-  createConversation(title = "New Conversation") {
-    return this.request("/conversations/", {
-      method: "POST",
-      body: JSON.stringify({ title }),
-    });
-  }
-
-  sendMessage(conversationId, content, location = "Yaoundé") {
-    return this.request(`/conversations/${conversationId}/send/`, {
-      method: "POST",
-      body: JSON.stringify({ content, location }),
-    });
-  }
-
-  getMessages(conversationId) {
-    return this.request(`/conversations/${conversationId}/messages/`);
-  }
-
-  sendGuestMessage(content, location = "Yaoundé") {
-    return this.request("/conversations/guest-chat/", {
-      method: "POST",
-      skipAuth: true,
-      body: JSON.stringify({ content, location }),
-    });
-  }
-
-  migrateHistory(history) {
-    return this.request("/conversations/migrate/", {
-      method: "POST",
-      body: JSON.stringify({ history }),
-    });
-  }
+  return response.json();
 }
+const API = {
+  login: (email, password) =>
+    request("/auth/login/", {
+      method: "POST",
 
-const API = new ApiService();
+      body: JSON.stringify({ email, password }),
+    }),
+
+  register: (email, username, password, confirmPassword) =>
+    request("/auth/register/", {
+      method: "POST",
+
+      body: JSON.stringify({
+        email,
+
+        username,
+
+        password,
+
+        confirm_password: confirmPassword,
+
+        preferred_language: "en",
+      }),
+    }),
+
+  registerGuest: async () => {
+    const randomId = Math.floor(100000 + Math.random() * 900000);
+
+    return API.register(
+      `guest_${randomId}@amino-vault.com`,
+
+      `guest_${randomId}`,
+
+      "GuestPass1234!",
+
+      "GuestPass1234!",
+    );
+  },
+
+  getConversations: () => request("/conversations/", { method: "GET" }),
+
+  createConversation: (title = "New Conversation") =>
+    request("/conversations/", {
+      method: "POST",
+
+      body: JSON.stringify({ title }),
+    }),
+
+  getConversationDetails: (id) =>
+    request(`/conversations/${id}/`, { method: "GET" }),
+
+  sendMessage: (conversationId, content, location = "Yaoundé") =>
+    request(`/conversations/${conversationId}/send/`, {
+      method: "POST",
+
+      body: JSON.stringify({ content, location }),
+    }),
+};
