@@ -73,8 +73,8 @@ const API = {
     }),
 
   migrateGuestHistory: (guestHistory) =>
-    request("/conversations/migrate_`guest`/", {
+    request("/conversations/migrate/", {
       method: "POST",
-      body: JSON.stringify({ guest_history: guestHistory }),
+      body: JSON.stringify({ messages: guestHistory }),
     }),
 };

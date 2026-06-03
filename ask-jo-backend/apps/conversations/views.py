@@ -3,7 +3,7 @@ from django.conf import settings
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Conversation, Message
 from .serializers import (
     ConversationListSerializer,
@@ -151,19 +151,16 @@ class SendMessageView(APIView):
         user_content = serializer.validated_data['content']
         location = serializer.validated_data.get('location', '')
 
-        # Save user message
         user_message = Message.objects.create(
             conversation=conversation,
             role='user',
             content=user_content,
         )
 
-        # Auto-set conversation title from first message
         if not conversation.title:
             conversation.title = auto_title(user_content)
             conversation.save()
 
-        # Build conversation history for AI (last 10 messages)
         history = list(
             conversation.messages
             .exclude(pk=user_message.pk)
@@ -172,17 +169,14 @@ class SendMessageView(APIView):
         )
         history.reverse()
 
-        # Build user context
         user_context = {
             'preferred_language': request.user.preferred_language,
             'location': location,
             'age_range': request.user.age_range or '',
         }
 
-        # Call FastAPI AI service
         ai_response = call_ai_service(user_content, history, user_context)
 
-        # Save assistant message
         assistant_message = Message.objects.create(
             conversation=conversation,
             role='assistant',
@@ -190,7 +184,6 @@ class SendMessageView(APIView):
             is_crisis_flagged=ai_response.get('crisis_flagged', False),
         )
 
-        # Update conversation timestamp
         conversation.save()
 
         return Response({
@@ -198,6 +191,37 @@ class SendMessageView(APIView):
             'assistant_message': MessageSerializer(assistant_message).data,
             'language_detected': ai_response.get('language_detected', 'en'),
             'crisis_flagged': ai_response.get('crisis_flagged', False),
+            'sources': ai_response.get('sources', []),
+            'resources': ai_response.get('resources', []),
+        }, status=status.HTTP_200_OK)
+
+
+class GuestSendMessageView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = SendMessageSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        user_content = serializer.validated_data['content']
+        location = serializer.validated_data.get('location', '')
+
+        user_context = {
+            'preferred_language': 'en',
+            'location': location,
+            'age_range': '',
+        }
+
+        ai_response = call_ai_service(user_content, [], user_context)
+
+        return Response({
+            'assistant_message': {
+                'content': ai_response['reply'],
+                'is_crisis_flagged': ai_response.get('crisis_flagged', False)
+            },
+            'crisis_flagged': ai_response.get('crisis_flagged', False),
+            'language_detected': ai_response.get('language_detected', 'en'),
             'sources': ai_response.get('sources', []),
             'resources': ai_response.get('resources', []),
         }, status=status.HTTP_200_OK)
@@ -221,13 +245,11 @@ class MigrateGuestHistoryView(APIView):
             if first_user_msg:
                 title = auto_title(first_user_msg['content'])
 
-        # Create conversation
         conversation = Conversation.objects.create(
             user=request.user,
             title=title or 'Imported conversation',
         )
 
-        # Bulk create all messages
         message_objects = [
             Message(
                 conversation=conversation,

@@ -6,5 +6,6 @@ urlpatterns = [
     path('<int:pk>/', views.ConversationDetailView.as_view(), name='conversation-detail'),
     path('<int:pk>/messages/', views.MessageListView.as_view(), name='message-list'),
     path('<int:pk>/send/', views.SendMessageView.as_view(), name='send-message'),
+    path('guest-send/', views.GuestSendMessageView.as_view(), name='guest-send'),
     path('migrate/', views.MigrateGuestHistoryView.as_view(), name='migrate-guest'),
 ]
