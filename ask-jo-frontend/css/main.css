@@ -146,7 +146,7 @@ body {
 .hero-placeholder-img {
   width: 100%;
   height: 450px;
-  background-image: url("../assets/hero-guidance.jpg");
+  background-image: url("../assets/robot.png");
   background-size: cover;
   background-position: center;
   border-radius: var(--radius-lg);
